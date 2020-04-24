@@ -16,8 +16,8 @@ trainsubjects <- read.table('subject_train.txt') ## Train Group Labels
 featurelabels <- read.table('features.txt') ## Column Labels
 
 ## Adding Subject Number, Activity Number, and Sample type to data
-testfactor <- rep('test', times = length(ytestdata[,1])) ## These two lines create a factor variable to add to applicable data
-trainfactor <- rep('train', times = length(ytraindata[,1]))
+testfactor <- rep(0, times = length(ytestdata[,1])) ## These two lines create a factor variable to add to applicable data
+trainfactor <- rep(1, times = length(ytraindata[,1]))
 
 testdata <- cbind(testsubjects, ytestdata, testfactor, xtestdata) ## Merging each of the components for each set.
 traindata <- cbind(trainsubjects, ytraindata, trainfactor, xtraindata)
@@ -58,7 +58,7 @@ statdata <- select(alldata, Subject.Number, Activity, Sample, matches('[Mm]ean|s
 newnames <- colnames(statdata)
 newnames <- gsub('\\.\\.+','.', newnames)
 newnames <- gsub('t([A-Z])','Raw.\\1', newnames)
-newnames <- gsub('f([A-Z])','FTT.\\1', newnames)
+newnames <- gsub('f([A-Z])','FFT.\\1', newnames)
 newnames <- gsub('meanFreq','Mean.Frequency', newnames)
 newnames <- gsub('mean\\.([X|Y|Z])','Mean.\\1.Axis', newnames)
 newnames <- gsub('std\\.([X|Y|Z])','Standard.Dev.\\1.Axis', newnames)
@@ -75,6 +75,7 @@ newnames <- gsub('gravity','Gravity.', newnames)
 newnames <- gsub('Body\\.Body','Whole.Body', newnames)
 newnames <- gsub('Angle\\.([X|Y|Z])','Angle.\\1.Axis', newnames)
 newnames <- gsub('\\.\\.+','.', newnames)
+newnames <- gsub('([X|Y|Z])$','\\1.Axis',newnames)
 newnames <- sub('[[:punct:]]$','', newnames)
 
 ##Apply Names to Dataset
@@ -83,7 +84,9 @@ names(statdata) <- newnames
 ##Group by Subject and Activity
 ## I interpreted this as we want to show a table w/ 1 row per Subject/Activity, so in all there should be 180 observerations after cleaning. 
 groupeddata <- group_by(statdata,Subject.Number,Activity)
-summaryset <- summarize_at(groupeddata,vars(-(Sample)),funs(mean))
+summaryset <- summarize_all(groupeddata,funs(mean))
+summaryset$Sample <- factor(summaryset$Sample, levels = c(0,1), labels = c('test', 'train')) ## Originally did this above, but lost the label when doing the summarization,
+                                                                                             ## So factorized after. 
 
 ## Clean Up
 rm(activityname,alldata,groupeddata,statdata,activity,newnames,validcols)
