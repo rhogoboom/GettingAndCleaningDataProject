@@ -24,5 +24,6 @@ Jerk.Signal:              If there was a jerk movement
 Magniute:                 Magnitude of the vector
 X/Y/Z Axis:               The axis of measurement
 Mean / Standard Dev:      The measure being summarized, either arithmatic mean or standard deviation
+Whole.Body                Sum of Gravity and Body signals
 Angle:                    Average of the x, y, and z measurements being given. 
 
